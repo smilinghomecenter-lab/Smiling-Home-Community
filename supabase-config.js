@@ -1,0 +1,1 @@
+window.SHC_SUPABASE_CONFIG={url:"https://yzmgialwmloaqhmpjapi.supabase.co",publishableKey:"PASTE_SUPABASE_PUBLISHABLE_KEY_HERE"};
