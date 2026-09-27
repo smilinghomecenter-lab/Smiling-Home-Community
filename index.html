@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PROJECT 39 | บ้านแห่งรอยยิ้ม</title>
+<style>
+:root{--g:#0b3d2e;--g2:#145a43;--gold:#c8a64b;--bg:#f4f6f3;--card:#fff;--ink:#17231f;--muted:#6b7772;--red:#c0392b;--yellow:#b7791f;--green:#18864b;--line:#dfe5e1}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Thai",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,var(--g),#08271f);color:#fff;padding:20px}
+.wrap{max-width:1200px;margin:auto}.brand{display:flex;justify-content:space-between;gap:15px;align-items:center}.brand h1{margin:0;font-size:25px}.brand p{margin:5px 0 0;color:#d9e8e1}
+nav{display:flex;gap:8px;overflow:auto;margin-top:16px}nav button{border:1px solid #3d6c5d;background:transparent;color:#fff;padding:9px 13px;border-radius:9px;white-space:nowrap;cursor:pointer}nav button.active{background:var(--gold);color:#17231f;border-color:var(--gold)}
+main{padding:20px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 2px 8px #00000008}.label{color:var(--muted);font-size:13px}.num{font-size:28px;font-weight:800;margin-top:5px}.sub{font-size:12px;color:var(--muted)}
+section{display:none}.on{display:block}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:14px}.panel h2,.panel h3{margin-top:0}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.kpi{border:1px solid var(--line);border-radius:12px;padding:12px}.bar{height:8px;background:#e8edea;border-radius:99px;overflow:hidden;margin:9px 0}.fill{height:100%;background:var(--green)}.green{color:var(--green)}.yellow{color:var(--yellow)}.red{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px;border-bottom:1px solid var(--line);text-align:left}th{background:#f6f8f6}
+input,select{width:100%;padding:9px;border:1px solid #cfd8d3;border-radius:8px;background:#fff}.form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.btn{border:0;border-radius:8px;padding:9px 13px;background:var(--g);color:#fff;cursor:pointer}.btn.gold{background:var(--gold);color:#17231f}.btn.red{background:var(--red);color:#fff}
+.alert{border-left:5px solid var(--red);background:#fff5f4;padding:12px;border-radius:8px;margin:8px 0}.ok{border-left:5px solid var(--green);background:#f1faf5;padding:12px;border-radius:8px;margin:8px 0}
+.small{font-size:12px;color:var(--muted)}.right{text-align:right}.pill{display:inline-block;padding:4px 8px;border-radius:99px;font-size:11px;font-weight:700;background:#edf2ef}.pill.green{background:#e5f6ec}.pill.yellow{background:#fff4db}.pill.red{background:#fde8e6}
+footer{text-align:center;color:var(--muted);padding:25px}
+@media(max-width:850px){.grid,.kpis{grid-template-columns:repeat(2,1fr)}.form{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.grid,.kpis,.form{grid-template-columns:1fr}.brand{display:block}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="brand"><div><h1>🏠 PROJECT 39 — สู่ความสำเร็จ</h1><p>บ้านแห่งรอยยิ้ม • 23 ก.ย. 2569 → 23 ก.ย. 2570</p></div><div><b id="today"></b><br><span class="small" style="color:#d9e8e1">Executive Control Room</span></div></div>
+<nav>
+<button class="active" onclick="show('dash',this)">Dashboard</button>
+<button onclick="show('road',this)">Roadmap 12 เดือน</button>
+<button onclick="show('task',this)">งาน/ความล่าช้า</button>
+<button onclick="show('kpi',this)">KPI</button>
+<button onclick="show('evidence',this)">Evidence</button>
+</nav></div></header>
+<main class="wrap">
+<section id="dash" class="on">
+<div class="grid">
+<div class="card"><div class="label">🏪 ร้านค้า</div><div class="num">147</div><div class="sub">ฐานล่าสุด • เป้า 500</div></div>
+<div class="card"><div class="label">🎯 ร้านที่ต้องเพิ่ม</div><div class="num">353</div><div class="sub">ถึงเป้า 31 ธ.ค. 69</div></div>
+<div class="card"><div class="label">👨‍🌾 สมาชิก</div><div class="num">2,000</div><div class="sub">เป้าหมายโครงการ</div></div>
+<div class="card"><div class="label">⚠️ งานล่าช้า</div><div class="num" id="delayCount">0</div><div class="sub">ต้องแก้ทันที</div></div>
+</div>
+<div class="panel"><h2>🎯 Monthly Control</h2><div class="kpis" id="dashKpi"></div></div>
+<div class="panel"><h3>🚨 ผู้บริหารต้องทำอะไรอันดับแรก</h3>
+<div class="alert"><b>อันดับ 1 — ล็อกฐานข้อมูลจริง</b><br>ตรวจสมาชิก + ร้านค้า + Product Master + ต้นทุนจริง + เงินสด + สต็อก ก่อนเร่งขยายตลาด</div>
+<div class="ok"><b>กติกา:</b> งานทุกงานต้องมี Owner + Due Date + Status + Evidence + KPI + Corrective Action</div>
+</div>
+</section>
+
+<section id="road"><div class="panel"><h2>Roadmap 12 เดือน</h2><table><thead><tr><th>เดือน</th><th>ช่วงเวลา</th><th>Gate</th><th>KPI หลัก</th></tr></thead><tbody>
+<tr><td>M1</td><td>23 ก.ย.–22 ต.ค. 69</td><td>ตั้งระบบ</td><td>Data ≥95%, Evidence ≥95%, ต้นทุนจริง ≥1 รอบ</td></tr>
+<tr><td>M2</td><td>23 ต.ค.–22 พ.ย. 69</td><td>พิสูจน์สินค้า</td><td>QC 100%, Waste ≤3%, On-time ≥95%</td></tr>
+<tr><td>M3</td><td>23 พ.ย.–22 ธ.ค. 69</td><td>เร่งตลาด</td><td>ร้าน/สมาชิกตาม Pace</td></tr>
+<tr><td>G1</td><td>31 ธ.ค. 69</td><td>Year-End Gate</td><td>ตรวจ 500 ร้าน / 2,000 สมาชิก</td></tr>
+<tr><td>M4</td><td>23 ธ.ค. 69–22 ม.ค. 70</td><td>Recovery</td><td>Critical issue ปิด ≤7 วัน</td></tr>
+<tr><td>M5</td><td>23 ม.ค.–22 ก.พ. 70</td><td>Scale</td><td>Fulfillment ≥95%</td></tr>
+<tr><td>M6</td><td>23 ก.พ.–22 มี.ค. 70</td><td>Finance</td><td>P&L/Cash Flow ครบเดือน</td></tr>
+<tr><td>M7</td><td>23 มี.ค.–22 เม.ย. 70</td><td>มาตรฐาน</td><td>Traceability 100%</td></tr>
+<tr><td>M8</td><td>23 เม.ย.–22 พ.ค. 70</td><td>B2B</td><td>Buyer→Sample→Order→Repeat</td></tr>
+<tr><td>M9</td><td>23 พ.ค.–22 มิ.ย. 70</td><td>Digital</td><td>Data linked ≥95%</td></tr>
+<tr><td>M10</td><td>23 มิ.ย.–22 ก.ค. 70</td><td>Finance Ready</td><td>Financial Evidence ครบ</td></tr>
+<tr><td>M11</td><td>23 ก.ค.–22 ส.ค. 70</td><td>Scale Up</td><td>On-time ≥95%, QC 100%</td></tr>
+<tr><td>M12</td><td>23 ส.ค.–23 ก.ย. 70</td><td>Annual Gate</td><td>Audit + Impact + Year 2 Plan</td></tr>
+</tbody></table></div></section>
+
+<section id="task"><div class="panel"><h2>📋 Task & Delay Tracker</h2>
+<div class="form"><input id="tn" placeholder="ชื่องาน"><input id="owner" placeholder="ผู้รับผิดชอบ"><input id="due" type="date"><select id="st"><option>Planned</option><option>In Progress</option><option>Done</option><option>Delayed</option><option>Blocked</option></select></div><br><button class="btn" onclick="addTask()">+ เพิ่มงาน</button> <button class="btn gold" onclick="seed()">โหลดงาน M1</button>
+<div style="overflow:auto;margin-top:14px"><table><thead><tr><th>งาน</th><th>Owner</th><th>Due</th><th>Status</th><th>Delay</th><th>Action</th></tr></thead><tbody id="tasks"></tbody></table></div></div></section>
+
+<section id="kpi"><div class="panel"><h2>📊 KPI Review</h2><p class="small">เกณฑ์สี: 🟢 ≥90% • 🟡 75–89% • 🔴 &lt;75%</p><div class="kpis" id="kpiFull"></div></div>
+<div class="panel"><h3>Monthly KPI Input</h3><div class="form"><input id="kn" placeholder="KPI เช่น ร้านค้า"><input id="kp" type="number" placeholder="Target"><input id="ka" type="number" placeholder="Actual"><input id="ku" placeholder="หน่วย"></div><br><button class="btn" onclick="addKpi()">บันทึก KPI</button><div id="kpiRows"></div></div></section>
+
+<section id="evidence"><div class="panel"><h2>📁 Evidence Control</h2><p>หลักฐานขั้นต่ำ: ใบซื้อ/ใบขาย/ใบผลิต/Stock/รูปถ่าย/เอกสารอนุมัติ/รายงาน KPI</p><div class="ok"><b>สถานะ:</b> ระบบนี้บันทึกข้อมูลไว้ใน Browser ของเครื่องที่ใช้งาน จึงเหมาะสำหรับ MVP/ทดลองระบบก่อนเชื่อมฐานข้อมูลกลาง</div><h3>กติกา Audit</h3><ul><li>ทุกยอดขายและค่าใช้จ่ายต้องมีหลักฐาน</li><li>การแก้ย้อนหลังต้องมีร่องรอย</li><li>แยกเงินธุรกิจกับเงินส่วนตัว</li><li>ใช้ Batch/Lot เชื่อมผลิตกับขาย</li><li>ห้ามอ้างมาตรฐานที่ยังไม่มีใบรับรองจริง</li></ul></div></section>
+<footer>PROJECT 39 • Smiling Home Community • v1.0 MVP</footer>
+</main>
+<script>
+const seedTasks=[
+['ตรวจทะเบียนสมาชิก','Director','2026-09-27','In Progress'],
+['ตรวจฐานร้านค้า 147 ร้าน','Market','2026-09-29','Planned'],
+['ยืนยันต้นทุนจริง 1 Batch','Finance','2026-09-30','Planned'],
+['เปิด Production Log','Operations','2026-09-30','Planned'],
+['เปิด Sales / Expense / Stock Log','Finance','2026-10-01','Planned'],
+['ตรวจ Product Master P001-P003','Product','2026-10-02','Planned'],
+['สรุป KPI M1','Director','2026-10-22','Planned']
+];
+let tasks=JSON.parse(localStorage.p39tasks||'[]');let kpis=JSON.parse(localStorage.p39kpis||'[]');
+function save(){localStorage.p39tasks=JSON.stringify(tasks);localStorage.p39kpis=JSON.stringify(kpis)}
+function show(id,b){document.querySelectorAll('section').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()}
+function daysLate(d){let x=(new Date()-new Date(d+'T23:59:59'))/86400000;return Math.max(0,Math.floor(x))}
+function statusClass(s){return s==='Done'?'green':s==='Delayed'||s==='Blocked'?'red':s==='In Progress'?'yellow':''}
+function renderTasks(){document.getElementById('tasks').innerHTML=tasks.map((t,i)=>{let late=t[3]==='Done'?0:daysLate(t[2]);return '<tr><td>'+t[0]+'</td><td>'+t[1]+'</td><td>'+t[2]+'</td><td><span class="pill '+statusClass(t[3])+'">'+t[3]+'</span></td><td class="'+(late?'red':'green')+'">'+late+' วัน</td><td><button class="btn" onclick="done('+i+')">Done</button> <button class="btn red" onclick="del('+i+')">ลบ</button></td></tr>'}).join('');document.getElementById('delayCount').textContent=tasks.filter(t=>t[3]!=='Done'&&daysLate(t[2])>0).length}
+function addTask(){if(!tn.value||!owner.value||!due.value)return;tasks.push([tn.value,owner.value,due.value,st.value]);save();renderTasks()}
+function done(i){tasks[i][3]='Done';save();renderTasks()}
+function del(i){tasks.splice(i,1);save();renderTasks()}
+function seed(){tasks=[...seedTasks];save();renderTasks()}
+const baseK=[
+['Data completeness',95,'%',95],['Evidence completeness',95,'%',95],['QC Batch',100,'%',100],['Waste',3,'%',3],['On-time delivery',95,'%',95]
+];
+function kpiCard(k){let pct=k[0]==='Waste'?Math.min(100,(k[1]/Math.max(k[2],0.01))*100):Math.min(100,(k[2]/Math.max(k[1],0.01))*100);let cls=pct>=90?'green':pct>=75?'yellow':'red';return '<div class="kpi"><b>'+k[0]+'</b><div class="num">'+k[2]+'<span style="font-size:13px"> '+k[3]+'</span></div><div class="bar"><div class="fill" style="width:'+pct+'%"></div></div><span class="'+cls+'">'+Math.round(pct)+'%</span></div>'}
+function renderKpi(){document.getElementById('dashKpi').innerHTML=baseK.map(kpiCard).join('');document.getElementById('kpiFull').innerHTML=baseK.concat(kpis).map(kpiCard).join('');document.getElementById('kpiRows').innerHTML=kpis.map((k,i)=>'<div class="small" style="padding:7px 0;border-bottom:1px solid #eee">'+k[0]+' — target '+k[1]+k[3]+' / actual '+k[2]+k[3]+' <button onclick="kpis.splice('+i+',1);save();renderKpi()">ลบ</button></div>').join('')}
+function addKpi(){if(!kn.value)return;kpis.push([kn.value,+kp.value||0,+ka.value||0,ku.value||'']);save();renderKpi()}
+document.getElementById('today').textContent=new Date().toLocaleDateString('th-TH',{dateStyle:'medium'});renderTasks();renderKpi();
+</script>
+</body></html>
