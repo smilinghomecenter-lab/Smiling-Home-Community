@@ -1,0 +1,35 @@
+create extension if not exists pgcrypto;
+create table if not exists public.member_access_roles(user_id uuid primary key references auth.users(id) on delete cascade,role text not null check(role in ('director','admin','member_verifier','operator','viewer')),created_at timestamptz not null default now());
+create table if not exists public.members(id uuid primary key default gen_random_uuid(),member_code text not null unique,full_name text not null,village text,occupation text,gate_status text not null default 'ยังไม่ตรวจ' check(gate_status in ('ยังไม่ตรวจ','ตรวจแล้ว','ข้อมูลไม่ครบ','ไม่ผ่านการตรวจ')),gate_missing_info text,gate_inspector uuid references auth.users(id),gate_verified_at date,gate_evidence_id text,created_at timestamptz not null default now(),updated_at timestamptz not null default now());
+create table if not exists public.member_gate_audit(id bigint generated always as identity primary key,member_id uuid not null references public.members(id) on delete cascade,actor_user_id uuid not null references auth.users(id),action text not null,old_status text,new_status text,old_missing_info text,new_missing_info text,evidence_id text,inspected_on date,created_at timestamptz not null default now());
+create table if not exists public.member_journeys(id uuid primary key default gen_random_uuid(),member_id uuid not null references public.members(id),occupation text not null,product_id text not null,market_code text,created_by uuid not null references auth.users(id),created_at timestamptz not null default now());
+create or replace function public.current_member_role() returns text language sql stable security definer set search_path=public as $$select role from public.member_access_roles where user_id=auth.uid() limit 1$$;
+create or replace function public.can_verify_gate() returns boolean language sql stable security definer set search_path=public as $$select coalesce(public.current_member_role() in ('director','admin','member_verifier'),false)$$;
+create or replace function public.can_manage_journey() returns boolean language sql stable security definer set search_path=public as $$select coalesce(public.current_member_role() in ('director','admin','member_verifier','operator'),false)$$;
+create or replace function public.verify_member_gate01(p_member_id uuid,p_village text,p_occupation text,p_status text,p_missing_info text,p_evidence_id text,p_verified_on date) returns public.members language plpgsql security definer set search_path=public as $$
+declare m public.members; oldm public.members;
+begin
+ if not public.can_verify_gate() then raise exception 'FORBIDDEN: role is not authorized to verify Gate 01'; end if;
+ if p_status='ตรวจแล้ว' and (nullif(trim(p_village),'') is null or nullif(trim(p_occupation),'') is null or nullif(trim(p_evidence_id),'') is null or p_verified_on is null or nullif(trim(coalesce(p_missing_info,'')),'') is not null) then raise exception 'GATE_01_INCOMPLETE: required verification fields are missing or unresolved'; end if;
+ select * into oldm from public.members where id=p_member_id for update; if not found then raise exception 'MEMBER_NOT_FOUND'; end if;
+ update public.members set village=nullif(trim(p_village),''),occupation=nullif(trim(p_occupation),''),gate_status=p_status,gate_missing_info=nullif(trim(coalesce(p_missing_info,'')),''),gate_inspector=auth.uid(),gate_verified_at=p_verified_on,gate_evidence_id=nullif(trim(p_evidence_id),''),updated_at=now() where id=p_member_id returning * into m;
+ insert into public.member_gate_audit(member_id,actor_user_id,action,old_status,new_status,old_missing_info,new_missing_info,evidence_id,inspected_on) values(m.id,auth.uid(),'GATE_01_UPDATE',oldm.gate_status,m.gate_status,oldm.gate_missing_info,m.gate_missing_info,m.gate_evidence_id,m.gate_verified_at);
+ return m;
+end $$;
+create or replace function public.create_member_journey(p_member_id uuid,p_occupation text,p_product_id text,p_market_code text) returns public.member_journeys language plpgsql security definer set search_path=public as $$
+declare m public.members;j public.member_journeys;
+begin
+ if not public.can_manage_journey() then raise exception 'FORBIDDEN: role is not authorized'; end if;
+ select * into m from public.members where id=p_member_id; if not found then raise exception 'MEMBER_NOT_FOUND'; end if;
+ if not(m.gate_status='ตรวจแล้ว' and nullif(trim(coalesce(m.village,'')),'') is not null and nullif(trim(coalesce(m.occupation,'')),'') is not null and m.gate_inspector is not null and m.gate_verified_at is not null and nullif(trim(coalesce(m.gate_evidence_id,'')),'') is not null and nullif(trim(coalesce(m.gate_missing_info,'')),'') is null) then raise exception 'GATE_01_REQUIRED: member has not passed Gate 01'; end if;
+ if nullif(trim(p_occupation),'') is null or nullif(trim(p_product_id),'') is null then raise exception 'JOURNEY_INCOMPLETE'; end if;
+ insert into public.member_journeys(member_id,occupation,product_id,market_code,created_by) values(p_member_id,trim(p_occupation),trim(p_product_id),nullif(trim(p_market_code),''),auth.uid()) returning * into j; return j;
+end $$;
+alter table public.members enable row level security; alter table public.member_gate_audit enable row level security; alter table public.member_journeys enable row level security; alter table public.member_access_roles enable row level security;
+drop policy if exists members_read_authenticated on public.members; create policy members_read_authenticated on public.members for select to authenticated using(true);
+drop policy if exists roles_self_read on public.member_access_roles; create policy roles_self_read on public.member_access_roles for select to authenticated using(user_id=auth.uid());
+drop policy if exists audit_read_authorized on public.member_gate_audit; create policy audit_read_authorized on public.member_gate_audit for select to authenticated using(public.current_member_role() in ('director','admin','member_verifier'));
+drop policy if exists journeys_read_authenticated on public.member_journeys; create policy journeys_read_authenticated on public.member_journeys for select to authenticated using(true);
+revoke all on public.members from anon; revoke all on public.member_gate_audit from anon; revoke all on public.member_journeys from anon; revoke all on public.member_access_roles from anon;
+grant select on public.members,public.member_gate_audit,public.member_journeys,public.member_access_roles to authenticated;
+grant execute on function public.current_member_role() to authenticated; grant execute on function public.can_verify_gate() to authenticated; grant execute on function public.can_manage_journey() to authenticated; grant execute on function public.verify_member_gate01(uuid,text,text,text,text,text,date) to authenticated; grant execute on function public.create_member_journey(uuid,text,text,text) to authenticated;
