@@ -150,4 +150,4 @@ function renderKpi(){document.getElementById('dashKpi').innerHTML=baseK.map(kpiC
 function addKpi(){if(!kn.value)return;kpis.push([kn.value,+kp.value||0,+ka.value||0,ku.value||'']);save();renderKpi()}
 document.getElementById('today').textContent=new Date().toLocaleDateString('th-TH',{dateStyle:'medium'});renderTasks();renderKpi();renderAllData();
 </script>
-</body></html>
+<script src="supabase-config.js"></script><script src="production-gate.js"></script></body></html>
